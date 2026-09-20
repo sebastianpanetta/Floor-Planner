@@ -50,7 +50,7 @@
                         <i class="fa-solid fa-couch"></i>
                         <span>Sofa (200x90)</span>
                     </button>
-                    <button class="preset-btn" data-type="bed" data-w="160" data-l="200" data-h="100" data-color="#8b5cf6" data-label="Queen Bed">
+                    <button class="preset-btn" data-type="bed" data-w="160" data-l="200" data-h="100" data-color="#8b5cf6" data-label="Bed">
                         <i class="fa-solid fa-bed"></i>
                         <span>Bed (160x200)</span>
                     </button>
@@ -201,9 +201,8 @@
                         <button id="tapeMeasureBtn" title="Tape Measure Tool"><i class="fa-solid fa-ruler"></i> Tape Measure: OFF</button>
                     </div>
                     <div class="hint-overlay">
-                        <span><i class="fa-solid fa-hand-pointer"></i> Drag item to move</span>
-                        <span><i class="fa-solid fa-arrows-spin"></i> Handle to rotate</span>
-                        <span><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Corner handle to resize</span>
+                        <span><i class="fa-solid fa-hand-pointer"></i> Double-click item to edit</span>
+                        <span><i class="fa-solid fa-ruler"></i> 'M' key for tape measure</span>
                         <span><i class="fa-solid fa-copy"></i> Ctrl+C / Ctrl+V to copy/paste</span>
                     </div>
                 </div>
@@ -260,6 +259,58 @@
             </div>
             <div class="modal-footer">
                 <button id="startPlannerBtn" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i> Start Planning</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Properties Edit Modal -->
+    <div id="itemModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-pen-to-square"></i> Edit Item Properties</h3>
+                <button id="closeItemModalBtn" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-wrapper">
+                    <label for="modalItemLabel">Name</label>
+                    <input type="text" id="modalItemLabel">
+                </div>
+                <div class="input-group-row">
+                    <div class="input-wrapper">
+                        <label for="modalItemW">Width (cm)</label>
+                        <input type="number" id="modalItemW" min="10">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="modalItemL">Length (cm)</label>
+                        <input type="number" id="modalItemL" min="10">
+                    </div>
+                </div>
+                <div class="input-group-row">
+                    <div class="input-wrapper">
+                        <label for="modalItemX">Pos X (cm)</label>
+                        <input type="number" id="modalItemX">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="modalItemY">Pos Y (cm)</label>
+                        <input type="number" id="modalItemY">
+                    </div>
+                </div>
+                <div class="input-group-row">
+                    <div class="input-wrapper">
+                        <label for="modalItemRot">Rotation (°)</label>
+                        <input type="number" id="modalItemRot" step="15" min="0" max="360">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="modalItemColor">Color</label>
+                        <input type="color" id="modalItemColor">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button id="deleteItemModalBtn" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
+                <div class="btn-group" style="flex: 0 0 auto;">
+                    <button id="saveItemModalBtn" class="btn btn-primary"><i class="fa-solid fa-check"></i> Save Changes</button>
+                </div>
             </div>
         </div>
     </div>

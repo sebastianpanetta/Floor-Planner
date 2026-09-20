@@ -41,7 +41,7 @@ class FloorPlanner {
         // Default Presets Configuration
         this.presets = [
             { type: 'sofa', label: 'Sofa', w: 200, l: 90, h: 85, color: '#3b82f6', icon: 'fa-couch' },
-            { type: 'bed', label: 'Queen Bed', w: 160, l: 200, h: 100, color: '#8b5cf6', icon: 'fa-bed' },
+            { type: 'bed', label: 'Bed', w: 160, l: 200, h: 100, color: '#8b5cf6', icon: 'fa-bed' },
             { type: 'table', label: 'Dining Table', w: 140, l: 80, h: 75, color: '#f59e0b', icon: 'fa-utensils' },
             { type: 'desk', label: 'Office Desk', w: 120, l: 60, h: 75, color: '#10b981', icon: 'fa-desktop' },
             { type: 'door', label: 'Door', w: 90, l: 15, h: 210, color: '#ef4444', icon: 'fa-door-open' },
@@ -241,13 +241,66 @@ class FloorPlanner {
         const newItem = this.addItem({
             ...this.clipboard,
             id: null,
-            label: `${this.clipboard.label} (Copy)`,
+            label: this.clipboard.label,
             x: this.clipboard.x + 20,
             y: this.clipboard.y + 20
         });
 
         this.selectItem(newItem.id);
         this.render();
+    }
+
+    toggleTapeMeasure() {
+        this.tapeMode = !this.tapeMode;
+        const tapeBtn = document.getElementById('tapeMeasureBtn');
+        if (tapeBtn) {
+            tapeBtn.classList.toggle('active', this.tapeMode);
+            tapeBtn.innerHTML = `<i class="fa-solid fa-ruler"></i> Tape Measure: ${this.tapeMode ? 'ON' : 'OFF'}`;
+        }
+        if (!this.tapeMode) {
+            this.tapeStart = null;
+            this.tapeEnd = null;
+        }
+        this.canvas.style.cursor = this.tapeMode ? 'crosshair' : 'default';
+        this.render2D();
+    }
+
+    openItemModal(item) {
+        if (!item) return;
+        this.selectItem(item.id);
+
+        document.getElementById('modalItemLabel').value = item.label;
+        document.getElementById('modalItemW').value = item.w;
+        document.getElementById('modalItemL').value = item.l;
+        document.getElementById('modalItemX').value = Math.round(item.x);
+        document.getElementById('modalItemY').value = Math.round(item.y);
+        document.getElementById('modalItemRot').value = Math.round(item.rotation);
+        document.getElementById('modalItemColor').value = item.color;
+
+        document.getElementById('itemModal').style.display = 'flex';
+    }
+
+    closeItemModal() {
+        document.getElementById('itemModal').style.display = 'none';
+    }
+
+    saveItemFromModal() {
+        if (!this.selectedItemId) return;
+        const item = this.items.find(i => i.id === this.selectedItemId);
+        if (!item) return;
+
+        item.label = document.getElementById('modalItemLabel').value || item.label;
+        item.w = Math.max(10, parseFloat(document.getElementById('modalItemW').value) || item.w);
+        item.l = Math.max(10, parseFloat(document.getElementById('modalItemL').value) || item.l);
+        item.x = parseFloat(document.getElementById('modalItemX').value) || 0;
+        item.y = parseFloat(document.getElementById('modalItemY').value) || 0;
+        item.rotation = (parseFloat(document.getElementById('modalItemRot').value) || 0) % 360;
+        item.color = document.getElementById('modalItemColor').value;
+
+        this.selectItem(item.id);
+        this.saveState();
+        this.render();
+        this.closeItemModal();
     }
 
     saveState() {
@@ -336,26 +389,6 @@ class FloorPlanner {
         // View mode switching
         document.getElementById('view2dBtn').addEventListener('click', () => this.switchView('2d'));
         document.getElementById('view3dBtn').addEventListener('click', () => this.switchView('3d'));
-
-        // Preset items buttons
-        document.querySelectorAll('.preset-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const type = btn.dataset.type;
-                const label = btn.dataset.label;
-                const w = parseFloat(btn.dataset.w);
-                const l = parseFloat(btn.dataset.l);
-                const h = parseFloat(btn.dataset.h);
-                const color = btn.dataset.color;
-
-                // Center in room
-                const x = Math.max(0, (this.room.width - w) / 2);
-                const y = Math.max(0, (this.room.length - l) / 2);
-
-                const item = this.addItem({ label, type, w, l, h, x, y, rotation: 0, color });
-                this.selectItem(item.id);
-                this.render();
-            });
-        });
 
         // Add Custom Item
         const addCustomAction = () => {
@@ -511,6 +544,7 @@ class FloorPlanner {
         this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         window.addEventListener('mouseup', () => this.handleMouseUp());
         this.canvas.addEventListener('wheel', (e) => this.handleWheel(e), { passive: false });
+        this.canvas.addEventListener('dblclick', (e) => this.handleDoubleClick(e));
 
         // Startup Modal event listeners
         document.getElementById('startPlannerBtn').addEventListener('click', () => this.applyStartupRoom());
@@ -534,10 +568,43 @@ class FloorPlanner {
             if (e.target.id === 'presetsModal') this.closePresetsModal();
         });
 
-        // Keyboard Shortcuts (Undo/Redo: Ctrl+Z/Ctrl+Y, Copy/Paste: Ctrl+C/Ctrl+V, Delete/Backspace)
+        // Item Edit Modal event listeners
+        document.getElementById('closeItemModalBtn').addEventListener('click', () => this.closeItemModal());
+        document.getElementById('saveItemModalBtn').addEventListener('click', () => this.saveItemFromModal());
+        document.getElementById('deleteItemModalBtn').addEventListener('click', () => {
+            if (this.selectedItemId) {
+                this.deleteItem(this.selectedItemId);
+                this.render();
+                this.closeItemModal();
+            }
+        });
+        document.getElementById('itemModal').addEventListener('click', (e) => {
+            if (e.target.id === 'itemModal') this.closeItemModal();
+        });
+        ['modalItemLabel', 'modalItemW', 'modalItemL', 'modalItemX', 'modalItemY', 'modalItemRot', 'modalItemColor'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.saveItemFromModal();
+                    }
+                });
+            }
+        });
+
+        // Keyboard Shortcuts (Undo/Redo: Ctrl+Z/Ctrl+Y, Copy/Paste: Ctrl+C/Ctrl+V, Tape: 'M', Delete/Backspace)
         window.addEventListener('keydown', (e) => {
             const activeElement = document.activeElement;
             const isTyping = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA');
+
+            if (!isTyping) {
+                if (e.key.toLowerCase() === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    e.preventDefault();
+                    this.toggleTapeMeasure();
+                    return;
+                }
+            }
 
             if ((e.ctrlKey || e.metaKey) && !isTyping) {
                 const key = e.key.toLowerCase();
@@ -713,9 +780,9 @@ class FloorPlanner {
             ctx.stroke();
         }
 
-        // Draw Walls (thick borders)
+        // Draw Walls (Thin interior border, thick exterior walls so interior space equals room dimensions)
         ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 1.5;
         ctx.strokeRect(0, 0, this.room.width, this.room.length);
 
         // Draw Dimensions Text on Walls
@@ -864,6 +931,18 @@ class FloorPlanner {
     }
 
     // 2D Interaction Handlers
+    handleDoubleClick(e) {
+        if (this.activeView !== '2d') return;
+        const pos = this.screenToCm(e.clientX, e.clientY);
+
+        for (let i = this.items.length - 1; i >= 0; i--) {
+            if (this.isPosInsideItem(pos, this.items[i])) {
+                this.openItemModal(this.items[i]);
+                break;
+            }
+        }
+    }
+
     handleMouseDown(e) {
         if (this.activeView !== '2d') return;
 
