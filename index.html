@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D/3D Room & Floor Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-compass-drafting"></i>
+                <h2>PlanCraft <span>2D/3D</span></h2>
+            </div>
+
+            <!-- Room Setup Section -->
+            <div class="panel-section">
+                <h3><i class="fa-solid fa-ruler-combined"></i> Room Dimensions</h3>
+                <div class="input-group-row">
+                    <div class="input-wrapper">
+                        <label for="roomWidth">Width (cm)</label>
+                        <input type="number" id="roomWidth" value="500" min="100" max="3000" step="10">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="roomLength">Length (cm)</label>
+                        <input type="number" id="roomLength" value="400" min="100" max="3000" step="10">
+                    </div>
+                </div>
+                <div class="input-wrapper">
+                    <label for="roomHeight">Ceiling Height (cm)</label>
+                    <input type="number" id="roomHeight" value="260" min="150" max="1000" step="10">
+                </div>
+                <button id="updateRoomBtn" class="btn btn-primary">
+                    <i class="fa-solid fa-arrows-rotate"></i> Update Room Dimensions
+                </button>
+            </div>
+
+            <!-- Add Objects Section -->
+            <div class="panel-section">
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-couch"></i> Furniture & Items</h3>
+                    <button id="editPresetsBtn" class="btn-icon" title="Modify Default Sizes"><i class="fa-solid fa-gear"></i></button>
+                </div>
+                <div class="presets-grid" id="presetsGrid">
+                    <button class="preset-btn" data-type="sofa" data-w="200" data-l="90" data-h="85" data-color="#3b82f6" data-label="Sofa">
+                        <i class="fa-solid fa-couch"></i>
+                        <span>Sofa (200x90)</span>
+                    </button>
+                    <button class="preset-btn" data-type="bed" data-w="160" data-l="200" data-h="100" data-color="#8b5cf6" data-label="Queen Bed">
+                        <i class="fa-solid fa-bed"></i>
+                        <span>Bed (160x200)</span>
+                    </button>
+                    <button class="preset-btn" data-type="table" data-w="140" data-l="80" data-h="75" data-color="#f59e0b" data-label="Dining Table">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span>Table (140x80)</span>
+                    </button>
+                    <button class="preset-btn" data-type="desk" data-w="120" data-l="60" data-h="75" data-color="#10b981" data-label="Office Desk">
+                        <i class="fa-solid fa-desktop"></i>
+                        <span>Desk (120x60)</span>
+                    </button>
+                    <button class="preset-btn" data-type="door" data-w="90" data-l="15" data-h="210" data-color="#ef4444" data-label="Door">
+                        <i class="fa-solid fa-door-open"></i>
+                        <span>Door (90cm)</span>
+                    </button>
+                    <button class="preset-btn" data-type="window" data-w="120" data-l="15" data-h="120" data-color="#06b6d4" data-label="Window">
+                        <i class="fa-solid fa-window-maximize"></i>
+                        <span>Window (120cm)</span>
+                    </button>
+                </div>
+
+                <div class="divider"><span>OR CUSTOM ITEM</span></div>
+
+                <div class="custom-item-form">
+                    <div class="input-wrapper">
+                        <label for="customName">Name</label>
+                        <input type="text" id="customName" placeholder="e.g. Armchair" value="Custom Item">
+                    </div>
+                    <div class="input-group-row">
+                        <div class="input-wrapper">
+                            <label for="customW">Width (cm)</label>
+                            <input type="number" id="customW" value="100">
+                        </div>
+                        <div class="input-wrapper">
+                            <label for="customL">Length (cm)</label>
+                            <input type="number" id="customL" value="100">
+                        </div>
+                    </div>
+                    <div class="input-group-row">
+                        <div class="input-wrapper">
+                            <label for="customH">Height (cm)</label>
+                            <input type="number" id="customH" value="80">
+                        </div>
+                        <div class="input-wrapper">
+                            <label for="customColor">Color</label>
+                            <input type="color" id="customColor" value="#ec4899">
+                        </div>
+                    </div>
+                    <button id="addCustomBtn" class="btn btn-secondary">
+                        <i class="fa-solid fa-plus"></i> Add Custom Furniture
+                    </button>
+                </div>
+            </div>
+
+            <!-- Selected Item Inspector -->
+            <div class="panel-section" id="inspectorPanel" style="display: none;">
+                <h3><i class="fa-solid fa-sliders"></i> Selected Item Properties</h3>
+                <div class="input-wrapper">
+                    <label for="inspectLabel">Name</label>
+                    <input type="text" id="inspectLabel">
+                </div>
+                <div class="input-group-row">
+                    <div class="input-wrapper">
+                        <label for="inspectW">Width (cm)</label>
+                        <input type="number" id="inspectW">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="inspectL">Length (cm)</label>
+                        <input type="number" id="inspectL">
+                    </div>
+                </div>
+                <div class="input-group-row">
+                    <div class="input-wrapper">
+                        <label for="inspectX">Pos X (cm)</label>
+                        <input type="number" id="inspectX">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="inspectY">Pos Y (cm)</label>
+                        <input type="number" id="inspectY">
+                    </div>
+                </div>
+                <div class="input-group-row">
+                    <div class="input-wrapper">
+                        <label for="inspectRot">Rotation (°)</label>
+                        <input type="number" id="inspectRot" step="15" min="0" max="360">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="inspectColor">Color</label>
+                        <input type="color" id="inspectColor">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button id="duplicateBtn" class="btn btn-sm btn-outline"><i class="fa-solid fa-copy"></i> Duplicate</button>
+                    <button id="deleteBtn" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="workspace">
+            <!-- Top Navigation & View Switcher -->
+            <header class="top-bar">
+                <div class="view-mode-selector">
+                    <button class="mode-btn active" id="view2dBtn">
+                        <i class="fa-solid fa-layer-group"></i> 2D Floor Plan
+                    </button>
+                    <button class="mode-btn" id="view3dBtn">
+                        <i class="fa-solid fa-cube"></i> 3D Preview
+                    </button>
+                </div>
+
+                <div class="stats-badge">
+                    <span>Room Area: <strong id="roomAreaVal">20.00 m²</strong></span>
+                    <span class="dot">·</span>
+                    <span>Items Count: <strong id="itemCountVal">0</strong></span>
+                </div>
+
+                <div class="actions-group">
+                    <button class="action-btn" id="undoBtn" title="Undo (Ctrl+Z)">
+                        <i class="fa-solid fa-rotate-left"></i> Undo
+                    </button>
+                    <button class="action-btn" id="redoBtn" title="Redo (Ctrl+Y)">
+                        <i class="fa-solid fa-rotate-right"></i> Redo
+                    </button>
+                    <button class="action-btn" id="clearAllBtn" title="Clear All Furniture">
+                        <i class="fa-solid fa-trash-can"></i> Clear All
+                    </button>
+                    <button class="action-btn" id="exportBtn" title="Export Plan to JSON">
+                        <i class="fa-solid fa-download"></i> Export
+                    </button>
+                    <label class="action-btn" for="importFile" title="Import Plan from JSON">
+                        <i class="fa-solid fa-upload"></i> Import
+                        <input type="file" id="importFile" accept=".json" style="display: none;">
+                    </label>
+                </div>
+            </header>
+
+            <!-- Canvas Viewports -->
+            <div class="viewport-container">
+                <!-- 2D View Canvas -->
+                <div id="canvas2dWrapper" class="viewport active">
+                    <canvas id="floorCanvas"></canvas>
+                    <div class="canvas-controls">
+                        <button id="zoomInBtn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                        <button id="zoomOutBtn" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                        <button id="resetViewBtn" title="Center Room"><i class="fa-solid fa-compress"></i></button>
+                        <button id="toggleGridBtn" class="active" title="Toggle Grid Snap"><i class="fa-solid fa-border-all"></i> Grid Snap: ON</button>
+                        <button id="tapeMeasureBtn" title="Tape Measure Tool"><i class="fa-solid fa-ruler"></i> Tape Measure: OFF</button>
+                    </div>
+                    <div class="hint-overlay">
+                        <span><i class="fa-solid fa-hand-pointer"></i> Drag item to move</span>
+                        <span><i class="fa-solid fa-arrows-spin"></i> Handle to rotate</span>
+                        <span><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Corner handle to resize</span>
+                        <span><i class="fa-solid fa-copy"></i> Ctrl+C / Ctrl+V to copy/paste</span>
+                    </div>
+                </div>
+
+                <!-- 3D View Canvas -->
+                <div id="canvas3dWrapper" class="viewport">
+                    <div id="threeContainer"></div>
+                    <div class="canvas-controls-3d">
+                        <div class="info-tag"><i class="fa-solid fa-computer-mouse"></i> Left Click + Drag to rotate view | Right Click + Drag to pan | Scroll to zoom</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Presets Modal -->
+    <div id="presetsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-sliders"></i> Modify Furniture Default Sizes</h3>
+                <button id="closePresetsModalBtn" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="presetsFormContainer">
+                <!-- Preset rows generated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button id="savePresetsBtn" class="btn btn-primary"><i class="fa-solid fa-check"></i> Save Defaults</button>
+            </div>
+        </div>
+    <!-- Startup Room Setup Modal -->
+    <div id="startupModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-ruler-combined"></i> Welcome to PlanCraft - Setup Room</h3>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Please enter the dimensions of your room to get started:</p>
+                <div class="input-group-row">
+                    <div class="input-wrapper">
+                        <label for="startupRoomWidth">Width (cm)</label>
+                        <input type="number" id="startupRoomWidth" value="500" min="100" max="3000" step="10">
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="startupRoomLength">Length (cm)</label>
+                        <input type="number" id="startupRoomLength" value="400" min="100" max="3000" step="10">
+                    </div>
+                </div>
+                <div class="input-wrapper">
+                    <label for="startupRoomHeight">Ceiling Height (cm)</label>
+                    <input type="number" id="startupRoomHeight" value="260" min="150" max="1000" step="10">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="startPlannerBtn" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i> Start Planning</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
